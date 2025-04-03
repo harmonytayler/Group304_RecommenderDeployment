@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecommendationAPI.Data;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Newtonsoft.Json; // For JSON deserialization
 
 namespace RecommendationAPI.Controllers
 {
@@ -8,53 +10,61 @@ namespace RecommendationAPI.Controllers
     [ApiController]
     public class RecommendationsController : ControllerBase
     {
-        // POST: api/recommendations/collaborative
-        [HttpPost("collaborative")]
-        public ActionResult<RecommendationResponse> GetCollaborativeRecommendations([FromBody] RecommendationRequest request)
+        [HttpGet("content/{itemId}")]
+        public IActionResult GetContentData(string itemId)
         {
-            // Call the Collaborative Filtering Model here (mocked for now)
-            var recommendations = GetCollaborativeRecommendationsFromModel(request.UserId, request.ItemId);
+            string filePath = "../RecommendationAPI/all_recommendations_5cols.csv";
 
-            return Ok(new RecommendationResponse { Recommendations = recommendations });
+            try
+            {
+                var lines = System.IO.File.ReadAllLines(filePath);
+                foreach (var line in lines)
+                {
+                    var columns = line.Split(',');
+                    if (columns.Length > 5 && columns[0] == itemId)
+                    {
+                        var result = columns.Skip(1).Take(5).ToList();
+                        return Ok(result);
+                    }
+                }
+                return NotFound($"Item with ID {itemId} not found.");
+            }
+            catch (IOException ex)
+            {
+                return StatusCode(500, $"Error reading file: {ex.Message}");
+            }
         }
 
-        // POST: api/recommendations/content
-        [HttpPost("content")]
-        public ActionResult<RecommendationResponse> GetContentRecommendations([FromBody] RecommendationRequest request)
+        [HttpGet("collaborative/{itemId}")]
+        public IActionResult GetCollaborativeData(string itemId)
         {
-            // Call the Content Filtering Model here (mocked for now)
-            var recommendations = GetContentRecommendationsFromModel(request.UserId, request.ItemId);
+            string filePath = "../RecommendationAPI/recommendationId.csv";
 
-            return Ok(new RecommendationResponse { Recommendations = recommendations });
+            try
+            {
+                var lines = System.IO.File.ReadAllLines(filePath);
+                foreach (var line in lines)
+                {
+                    var columns = line.Split(',');
+                    if (columns.Length > 5 && columns[0] == itemId)
+                    {
+                        var result = columns.Skip(2).Take(5).ToList();
+                        return Ok(result);
+                    }
+                }
+                return NotFound($"Item with ID {itemId} not found.");
+            }
+            catch (IOException ex)
+            {
+                return StatusCode(500, $"Error reading file: {ex.Message}");
+            }
         }
 
-        // POST: api/recommendations/azureML
-        [HttpPost("azureML")]
-        public ActionResult<RecommendationResponse> GetAzureMLRecommendations([FromBody] RecommendationRequest request)
+        [HttpGet("azure/{userId}/{itemId}")]
+        public IActionResult GetAzureData(string userId, string itemId)
         {
-            // Call the Azure ML model here (mocked for now)
-            var recommendations = GetAzureRecommendationsFromModel(request.UserId, request.ItemId);
-
-            return Ok(new RecommendationResponse { Recommendations = recommendations });
-        }
-
-        // Mock methods for now (replace with actual model calls)
-        private List<string> GetCollaborativeRecommendationsFromModel(string userId, string itemId)
-        {
-            // Replace with actual recommendation logic
-            return new List<string> { "Item1", "Item2", "Item3", "Item4", "Item5" };
-        }
-
-        private List<string> GetContentRecommendationsFromModel(string userId, string itemId)
-        {
-            // Replace with actual recommendation logic
-            return new List<string> { "Item6", "Item7", "Item8", "Item9", "Item10" };
-        }
-
-        private List<string> GetAzureRecommendationsFromModel(string userId, string itemId)
-        {
-            // Replace with actual Azure model call
-            return new List<string> { "Item11", "Item12", "Item13", "Item14", "Item15" };
+            var result = userId;
+            return Ok(result);
         }
     }
 }

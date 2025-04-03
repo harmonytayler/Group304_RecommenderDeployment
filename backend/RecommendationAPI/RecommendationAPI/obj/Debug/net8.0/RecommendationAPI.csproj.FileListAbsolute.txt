@@ -34,3 +34,4 @@ C:\Users\harmo\OneDrive\Information Systems\IS 455\Group304_RecommenderDeploymen
 C:\Users\harmo\OneDrive\Information Systems\IS 455\Group304_RecommenderDeployment\backend\RecommendationAPI\RecommendationAPI\obj\Debug\net8.0\RecommendationAPI.pdb
 C:\Users\harmo\OneDrive\Information Systems\IS 455\Group304_RecommenderDeployment\backend\RecommendationAPI\RecommendationAPI\obj\Debug\net8.0\RecommendationAPI.genruntimeconfig.cache
 C:\Users\harmo\OneDrive\Information Systems\IS 455\Group304_RecommenderDeployment\backend\RecommendationAPI\RecommendationAPI\obj\Debug\net8.0\ref\RecommendationAPI.dll
+C:\Users\harmo\OneDrive\Information Systems\IS 455\Group304_RecommenderDeployment\backend\RecommendationAPI\RecommendationAPI\bin\Debug\net8.0\Newtonsoft.Json.dll
