@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RecommendationAPI.Data;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Newtonsoft.Json; // For JSON deserialization
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace RecommendationAPI.Controllers
 {
@@ -10,6 +11,17 @@ namespace RecommendationAPI.Controllers
     [ApiController]
     public class RecommendationsController : ControllerBase
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string AzureMLEndpointUrl;
+        private readonly string ApiKey;
+
+        public RecommendationsController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        {
+            _httpClientFactory = httpClientFactory;
+            AzureMLEndpointUrl = configuration["AzureML:Endpoint"];
+            ApiKey = configuration["AzureML:ApiKey"];
+        }
+
         [HttpGet("content/{itemId}")]
         public IActionResult GetContentData(string itemId)
         {
@@ -61,10 +73,40 @@ namespace RecommendationAPI.Controllers
         }
 
         [HttpGet("azure/{userId}/{itemId}")]
-        public IActionResult GetAzureData(string userId, string itemId)
+        public async Task<IActionResult> GetAzureData(string userId, string itemId)
         {
-            var result = userId;
-            return Ok(result);
+            try
+            {
+                var inputPayload = new
+                {
+                    personId = userId,
+                    contentId = itemId
+                };
+
+                var jsonContent = JsonConvert.SerializeObject(inputPayload);
+
+                var client = _httpClientFactory.CreateClient();
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                content.Headers.Add("Authorization", "Bearer " + ApiKey);
+
+                var response = await client.PostAsync(AzureMLEndpointUrl, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<object>(responseData);  // Adjust based on your response format
+                    return Ok(result);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, "Error calling Azure ML service");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error calling Azure ML service: {ex.Message}");
+            }
         }
     }
 }

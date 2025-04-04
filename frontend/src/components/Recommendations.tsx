@@ -55,7 +55,7 @@ function Recommendations() {
                 <div>
                     <label htmlFor="itemId">Item ID:</label>
                     <select
-                    id="userId"
+                    id="itemId"
                     value={itemId}
                     onChange={handleItemIdChange}
                 >
