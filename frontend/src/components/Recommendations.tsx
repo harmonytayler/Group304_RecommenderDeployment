@@ -25,7 +25,7 @@ function Recommendations() {
         // Fetch recommendations from all three models
         const collaborative = await getCollaborativeRecommendations(itemId);
         const content = await getContentRecommendations(itemId);
-        const azure = await getAzureRecommendations(userId, itemId);
+        const azure = await getAzureRecommendations(itemId);
 
         // Update the state with fetched recommendations
         setCollaborativeRecommendations(collaborative);

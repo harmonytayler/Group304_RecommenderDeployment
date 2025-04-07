@@ -72,25 +72,28 @@ namespace RecommendationAPI.Controllers
             }
         }
 
-        [HttpGet("azure/{userId}/{itemId}")]
-        public async Task<IActionResult> GetAzureData(string userId, string itemId)
+        [HttpGet("azure/{itemId}")]
+        public async Task<IActionResult> GetAzureData(string itemId)
         {
             try
             {
                 var inputPayload = new
                 {
-                    personId = userId,
                     contentId = itemId
                 };
 
                 var jsonContent = JsonConvert.SerializeObject(inputPayload);
 
                 var client = _httpClientFactory.CreateClient();
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var request = new HttpRequestMessage(HttpMethod.Post, AzureMLEndpointUrl)
+                {
+                    Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
+                };
 
-                content.Headers.Add("Authorization", "Bearer " + ApiKey);
+                // Add the Authorization header to the request
+                request.Headers.Add("Authorization", "Bearer " + ApiKey);
 
-                var response = await client.PostAsync(AzureMLEndpointUrl, content);
+                var response = await client.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {

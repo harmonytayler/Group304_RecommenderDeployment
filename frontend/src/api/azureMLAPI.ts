@@ -1,6 +1,6 @@
-export const getAzureRecommendations = async (userId: string, itemId: string) => {
+export const getAzureRecommendations = async (itemId: string) => {
     try {
-        const response = await fetch(`https://localhost:5000/api/Recommendations/azure/${userId}/${itemId}`);
+        const response = await fetch(`https://localhost:5000/api/Recommendations/azure/${itemId}`);
 
         if (!response.ok) {
             throw new Error('Failed to fetch recommendations');
